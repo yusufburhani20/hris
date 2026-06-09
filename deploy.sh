@@ -79,7 +79,7 @@ echo "[5/7] Mengecek ketersediaan Node.js / NPM..."
 if command -v npm &> /dev/null; then
     echo "      Node.js ditemukan. Memulai kompilasi aset React (Vite)..."
     npm install --legacy-peer-deps --no-audit --no-fund
-    npm run build
+    npx vite build
     echo "      Kompilasi frontend selesai."
 else
     echo "      ⚠️  npm tidak ditemukan di server ini."
