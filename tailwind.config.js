@@ -28,22 +28,22 @@ export default {
                 sans: ['Inter', ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                primary: '#1576a7',
-                'primary-hover': '#115d84',
-                // Primary
+                primary: '#2b7a43',
+                'primary-hover': '#1e562f',
+                // Primary Remapped to Green/Teal from logo
                 indigo: {
-                    50: '#f0f9ff',
-                    100: '#e0f2fe',
-                    300: '#7dd3fc',
-                    400: '#38bdf8',
-                    500: '#0ea5e9',
-                    600: '#1576a7', // Primary Core
-                    800: '#075985',
-                    900: '#0c4a6e',
+                    50: '#f0fdf4',
+                    100: '#dcfce7',
+                    300: '#86efac',
+                    400: '#4ade80',
+                    500: '#22c55e',
+                    600: '#2b7a43', // Primary Core Brand Green
+                    800: '#166534',
+                    900: '#14532d',
                 },
                 violet: {
-                    500: '#8b5cf6', // Primary Accent
-                    600: '#7c3aed',
+                    500: '#0d9488', // Primary Accent Teal
+                    600: '#0f766e',
                 },
                 // Background Colors
                 slate: {

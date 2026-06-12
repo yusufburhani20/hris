@@ -4,6 +4,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <!-- PWA Meta Tags -->
+        <meta name="theme-color" content="#2b7a43">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="HRIS Enterprise">
+        <link rel="apple-touch-icon" href="/images/icon-192.png">
+        <link rel="manifest" href="/manifest.json">
+
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
         <link rel="icon" href="{{ \App\Models\Setting::get('school_favicon') ? \Illuminate\Support\Facades\Storage::url(\App\Models\Setting::get('school_favicon')) : asset('favicon.ico') }}" />
 
@@ -23,5 +31,16 @@
     </head>
     <body class="font-sans antialiased">
         @inertia
+
+        <!-- PWA Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(reg => console.log('Service Worker registered with scope:', reg.scope))
+                        .catch(err => console.error('Service Worker registration failed:', err));
+                });
+            }
+        </script>
     </body>
 </html>
