@@ -41,7 +41,7 @@ class OvertimeRequest extends Model
                 app(WebPushService::class)->sendToAdmins(
                     '⏰ Pengajuan Lembur Baru',
                     "{$name} mengajukan lembur pada {$date}" . ($duration ? " ({$duration} jam)" : '') . ". Mohon segera ditinjau.",
-                    ['url' => '/admin/attendances']
+                    ['url' => '/admin/overtimes']
                 );
             } catch (\Exception $e) {
                 Log::warning('Push notif (overtime created) failed: ' . $e->getMessage());

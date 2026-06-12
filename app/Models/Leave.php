@@ -42,7 +42,7 @@ class Leave extends Model
                 app(WebPushService::class)->sendToAdmins(
                     "📝 Pengajuan {$type} Baru",
                     "{$name} mengajukan {$type} mulai {$startDate}. Mohon segera ditinjau.",
-                    ['url' => '/admin/attendances']
+                    ['url' => '/admin/leaves']
                 );
             } catch (\Exception $e) {
                 Log::warning('Push notif (leave created) failed: ' . $e->getMessage());

@@ -95,10 +95,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/settings/logs', [\App\Http\Controllers\Admin\SettingController::class, 'updateLogs'])->name('settings.logs');
 
         // Admin Leave Approval Desk
+        Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves.index');
         Route::post('/leaves/{leave}/approve', [LeaveController::class, 'approve'])->name('leaves.approve');
         Route::post('/leaves/{leave}/reject', [LeaveController::class, 'reject'])->name('leaves.reject');
 
         // Admin Overtime Approval Desk
+        Route::get('/overtimes', [\App\Http\Controllers\OvertimeRequestController::class, 'index'])->name('overtimes.index');
         Route::post('/overtimes/{overtime}/approve', [\App\Http\Controllers\OvertimeRequestController::class, 'approve'])->name('overtimes.approve');
         Route::post('/overtimes/{overtime}/reject', [\App\Http\Controllers\OvertimeRequestController::class, 'reject'])->name('overtimes.reject');
 
