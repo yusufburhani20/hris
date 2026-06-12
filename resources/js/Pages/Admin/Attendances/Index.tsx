@@ -21,6 +21,8 @@ interface Attendance {
     system_notes: string | null;
     is_mocked: boolean;
     user: User;
+    latitude: number | string | null;
+    longitude: number | string | null;
 }
 
 export default function AttendanceIndex({ auth, attendances, users, filters }: PageProps<{ attendances: Attendance[], users: User[], filters: { start_date?: string, end_date?: string, user_id?: string, month?: string } }>) {
@@ -35,7 +37,7 @@ export default function AttendanceIndex({ auth, attendances, users, filters }: P
         checkoutTime: string | null,
         userName?: string,
         date?: string,
-        checkinCoords?: string
+        checkinCoords?: string | null
     } | null>(null);
 
     const handleMonthChange = (val: string) => {
