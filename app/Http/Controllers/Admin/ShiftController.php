@@ -22,7 +22,10 @@ class ShiftController extends Controller
         $employees = User::where('role', 'LIKE', '%employee%')
             ->orWhere('role', 'LIKE', '%driver%')
             ->with(['shifts' => function($q) {
-                $q->latest('user_shifts.start_date');
+                $q->where(function($query) {
+                    $query->whereNull('user_shifts.end_date')
+                          ->orWhere('user_shifts.end_date', '>=', today());
+                })->latest('user_shifts.start_date');
             }])
             ->get();
 
