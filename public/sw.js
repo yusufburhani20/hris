@@ -1,9 +1,10 @@
-const CACHE_NAME = 'hris-pwa-cache-v8';
+const CACHE_NAME = 'hris-pwa-cache-v10';
 const ASSETS_TO_CACHE = [
     '/images/icon-192.png',
     '/images/icon-512.png',
     '/favicon.ico',
-    '/manifest.json'
+    '/manifest.json',
+    '/login'
 ];
 
 self.addEventListener('install', (event) => {
@@ -29,6 +30,66 @@ self.addEventListener('activate', (event) => {
     );
     self.clients.claim();
 });
+
+// Helper to escape HTML characters in JSON string
+function escapeHtml(string) {
+    return string
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+// Helper to construct offline HTML page by merging login HTML shell and Inertia JSON
+async function getOfflineHtmlResponse(request, cache, fallbackUrl = '/login') {
+    // 1. Try to find the cached Inertia JSON for this URL
+    let inertiaRequest = new Request(request.url, {
+        headers: { 'x-inertia': 'true' }
+    });
+    let inertiaResponse = await cache.match(inertiaRequest, { ignoreSearch: true });
+
+    // If not found, and it's root or dashboard, try matching /dashboard JSON
+    if (!inertiaResponse) {
+        const url = new URL(request.url);
+        if (url.pathname === '/' || url.pathname.includes('utm_source=pwa') || url.pathname === '/dashboard') {
+            const dashboardRequest = new Request('/dashboard', {
+                headers: { 'x-inertia': 'true' }
+            });
+            inertiaResponse = await cache.match(dashboardRequest);
+        }
+    }
+
+    // 2. Fetch the cached login HTML shell
+    const loginResponse = await cache.match(fallbackUrl);
+    if (!loginResponse) {
+        return null;
+    }
+
+    if (!inertiaResponse) {
+        // Fallback to just the login HTML shell
+        return loginResponse;
+    }
+
+    try {
+        const loginHtmlText = await loginResponse.text();
+        const inertiaJsonText = await inertiaResponse.text();
+
+        // Update the URL in the Inertia page data to represent the actual requested path
+        const inertiaData = JSON.parse(inertiaJsonText);
+        inertiaData.url = new URL(request.url).pathname;
+
+        const escapedJson = escapeHtml(JSON.stringify(inertiaData));
+        const modifiedHtml = loginHtmlText.replace(/data-page="[^"]*"/, `data-page="${escapedJson}"`);
+
+        return new Response(modifiedHtml, {
+            headers: { 'Content-Type': 'text/html' }
+        });
+    } catch (e) {
+        console.error('Error merging offline HTML:', e);
+        return loginResponse;
+    }
+}
 
 self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') return;
@@ -91,9 +152,27 @@ self.addEventListener('fetch', (event) => {
                     if (cachedResponse) {
                         return cachedResponse;
                     }
-                    // If page request fails offline, fallback to root path /
+
+                    const isInertia = event.request.headers.get('x-inertia') === 'true';
+                    if (isInertia) {
+                        // Redirect to /dashboard if the Inertia JSON is not cached
+                        return new Response('', {
+                            status: 409,
+                            headers: {
+                                'x-inertia-location': '/dashboard'
+                            }
+                        });
+                    }
+
                     if (event.request.mode === 'navigate') {
-                        return caches.match('/');
+                        return caches.open(CACHE_NAME).then((cache) => {
+                            return getOfflineHtmlResponse(event.request, cache).then((offlineResponse) => {
+                                if (offlineResponse) {
+                                    return offlineResponse;
+                                }
+                                return caches.match('/');
+                            });
+                        });
                     }
                 });
             })
