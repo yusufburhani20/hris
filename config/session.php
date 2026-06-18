@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Str;
 
+$isPwa = false;
+if (isset($_GET['utm_source']) && $_GET['utm_source'] === 'pwa') {
+    $isPwa = true;
+} elseif (isset($_COOKIE['hris_is_pwa']) && $_COOKIE['hris_is_pwa'] === '1') {
+    $isPwa = true;
+}
+
 return [
 
     /*
@@ -32,9 +39,9 @@ return [
     |
     */
 
-    'lifetime' => (int) env('SESSION_LIFETIME', 120),
+    'lifetime' => $isPwa ? 10080 : (int) env('SESSION_LIFETIME', 120),
 
-    'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
+    'expire_on_close' => $isPwa ? false : env('SESSION_EXPIRE_ON_CLOSE', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -127,10 +134,9 @@ return [
     |
     */
 
-    'cookie' => env(
-        'SESSION_COOKIE',
-        Str::slug((string) env('APP_NAME', 'laravel')).'-session'
-    ),
+    'cookie' => $isPwa 
+        ? env('SESSION_COOKIE_PWA', 'hris_pwa_session')
+        : env('SESSION_COOKIE', Str::slug((string) env('APP_NAME', 'laravel')).'-session'),
 
     /*
     |--------------------------------------------------------------------------

@@ -2,7 +2,7 @@
     "name": "HRIS Enterprise",
     "short_name": "HRIS",
     "description": "Sistem Informasi Manajemen Kepegawaian & Penggajian Pintar",
-    "start_url": "/",
+    "start_url": "/?utm_source=pwa",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#2b7a43",
