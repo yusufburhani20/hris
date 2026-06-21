@@ -95,18 +95,42 @@ export default function Authenticated({
 
     const requestLocationPermission = async () => {
         setCheckingPermissions(true);
+
+        // Geolocation requires HTTPS in modern mobile browsers
+        if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            alert("Akses GPS Gagal: Geolocation wajib menggunakan koneksi aman (HTTPS). Harap aktifkan SSL/HTTPS pada domain website Anda di aaPanel.");
+            setCheckingPermissions(false);
+            return;
+        }
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 () => {
                     checkPermissions();
                 },
                 (err) => {
-                    console.warn(err);
+                    console.warn("Geolocation error:", err);
+                    let message = "Gagal mengakses lokasi: ";
+                    switch (err.code) {
+                        case err.PERMISSION_DENIED:
+                            message += "Izin akses lokasi ditolak oleh pengguna/browser.";
+                            break;
+                        case err.POSITION_UNAVAILABLE:
+                            message += "Informasi lokasi tidak tersedia (pastikan GPS HP Anda aktif).";
+                            break;
+                        case err.TIMEOUT:
+                            message += "Waktu permintaan lokasi habis (timeout).";
+                            break;
+                        default:
+                            message += err.message;
+                    }
+                    alert(message);
                     checkPermissions();
                 },
-                { enableHighAccuracy: false, timeout: 5000 }
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
         } else {
+            alert("Browser Anda tidak mendukung Geolocation (GPS).");
             checkPermissions();
         }
     };
